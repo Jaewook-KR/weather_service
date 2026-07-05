@@ -1,8 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/**/*.py": {
-      "excludeFiles": "{.python-packages/**,.matplotlib-cache/**,__pycache__/**,templates/**,today_temperature.png,*.pyc}"
+    "app.py": {
+      "excludeFiles": "{.python-packages/**,.matplotlib-cache/**,__pycache__/**,templates/**,today_temperature.png,plot_today_temperature.py,local_server.py,*.pyc}"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/app.py"
+    }
+  ]
 }

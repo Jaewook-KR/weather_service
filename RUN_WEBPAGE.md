@@ -1,6 +1,6 @@
 # 날씨 검색 웹 페이지 실행 및 Vercel 배포 방법
 
-이 프로젝트는 Flask를 사용하지 않습니다. 정적 HTML/CSS/JavaScript 페이지가 Vercel Python Serverless Function(`/api/weather.py`)을 호출하고, Open-Meteo API로 오늘 시간별 날씨를 가져온 뒤 브라우저에서 SVG 그래프로 표시합니다.
+이 프로젝트는 Flask 앱으로 실행됩니다. Flask가 정적 HTML/CSS/JavaScript 페이지와 `/api/weather` API를 제공하고, Open-Meteo API로 오늘 시간별 날씨를 가져온 뒤 브라우저에서 SVG 그래프로 표시합니다.
 
 ## 로컬 실행
 
@@ -12,7 +12,11 @@ cd /Users/jaewook/Desktop/agent_demo
 
 ### 2. 필요한 패키지 설치
 
-현재 Vercel 배포 구조에는 별도 Python 패키지가 필요하지 않습니다. 기존 실험 과정에서 만든 `.python-packages` 폴더는 배포에서 제외됩니다.
+Flask가 필요합니다. 로컬에 이미 설치되어 있지 않다면 아래 명령을 실행하세요.
+
+```bash
+python3 -m pip install --target .python-packages Flask
+```
 
 ### 3. 로컬 서버 실행
 
@@ -20,7 +24,7 @@ cd /Users/jaewook/Desktop/agent_demo
 python3 app.py
 ```
 
-이 로컬 서버도 Flask 없이 Python 표준 라이브러리만 사용합니다. 서버가 실행되면 브라우저에서 아래 주소를 엽니다.
+서버가 실행되면 브라우저에서 아래 주소를 엽니다.
 
 ```text
 http://127.0.0.1:5000
@@ -37,9 +41,10 @@ Vercel 배포를 위해 아래 파일을 추가했습니다.
 - `index.html`: 정적 웹 페이지
 - `static/app.js`: 위치 검색, API 호출, SVG 그래프 렌더링
 - `static/styles.css`: 화면 스타일
-- `api/weather.py`: Vercel Python Serverless Function
-- `vercel.json`: Python 함수 번들 제외 설정
-- `requirements.txt`: 현재는 외부 Python 패키지가 없어 비워 둔 의존성 파일
+- `app.py`: Flask 앱 진입점
+- `api/weather.py`: Flask 라우트에서 재사용하는 날씨 조회 로직
+- `vercel.json`: 모든 요청을 Flask 앱으로 전달하는 설정
+- `requirements.txt`: Vercel에서 설치할 Python 패키지 목록
 - `.vercelignore`: 로컬 전용 패키지와 캐시 파일 업로드 제외
 
 ### 1. Vercel CLI 설치
@@ -76,9 +81,9 @@ vercel --prod
 
 이 앱은 Open-Meteo 공개 API만 사용하므로 별도의 API 키나 환경 변수는 필요하지 않습니다.
 
-Vercel은 `/api/weather.py`의 `handler` 클래스를 서버리스 함수로 인식합니다. 이 형식은 Vercel Python Runtime의 `BaseHTTPRequestHandler` 방식입니다.
+Vercel은 루트의 `app.py`에서 top-level `app` 변수를 Flask/WSGI 앱으로 인식합니다. 이전 배포 오류를 피하기 위해 `app.py`는 반드시 `app = Flask(...)`를 export합니다.
 
-그래프는 서버에서 이미지 파일로 만들지 않고 브라우저에서 SVG로 그립니다. 그래서 Vercel 배포에는 Flask와 Matplotlib이 필요하지 않습니다.
+그래프는 서버에서 이미지 파일로 만들지 않고 브라우저에서 SVG로 그립니다. 그래서 Vercel 배포에는 Matplotlib이 필요하지 않습니다.
 
 ## 참고
 
