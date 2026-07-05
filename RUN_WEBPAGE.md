@@ -38,11 +38,11 @@ http://127.0.0.1:5000
 
 Vercel 배포를 위해 아래 파일을 추가했습니다.
 
-- `index.html`: 정적 웹 페이지
-- `static/app.js`: 위치 검색, API 호출, SVG 그래프 렌더링
-- `static/styles.css`: 화면 스타일
+- `public/index.html`: Vercel에서 CDN으로 제공되는 정적 웹 페이지
+- `public/static/app.js`: 위치 검색, API 호출, SVG 그래프 렌더링
+- `public/static/styles.css`: 화면 스타일
 - `app.py`: Flask 앱 진입점
-- `api/weather.py`: Flask 라우트에서 재사용하는 날씨 조회 로직
+- `weather_service.py`: Flask 라우트에서 재사용하는 날씨 조회 로직
 - `vercel.json`: 모든 요청을 Flask 앱으로 전달하는 설정
 - `requirements.txt`: Vercel에서 설치할 Python 패키지 목록
 - `.vercelignore`: 로컬 전용 패키지와 캐시 파일 업로드 제외
@@ -82,6 +82,8 @@ vercel --prod
 이 앱은 Open-Meteo 공개 API만 사용하므로 별도의 API 키나 환경 변수는 필요하지 않습니다.
 
 Vercel은 루트의 `app.py`에서 top-level `app` 변수를 Flask/WSGI 앱으로 인식합니다. 이전 배포 오류를 피하기 위해 `app.py`는 반드시 `app = Flask(...)`를 export합니다.
+
+Vercel의 Flask 문서에서는 정적 파일을 `public/**`에 두도록 안내합니다. 그래서 웹 페이지 파일은 `public` 폴더에 두고, Flask 함수는 `/api/weather` 요청을 처리합니다.
 
 그래프는 서버에서 이미지 파일로 만들지 않고 브라우저에서 SVG로 그립니다. 그래서 Vercel 배포에는 Matplotlib이 필요하지 않습니다.
 

@@ -12,15 +12,15 @@ if LOCAL_PACKAGES.exists():
 
 from flask import Flask, jsonify, send_from_directory, request
 
-from api.weather import weather_payload
+from weather_service import weather_payload
 
 
-app = Flask(__name__, static_folder="static", static_url_path="/static")
+app = Flask(__name__, static_folder="public/static", static_url_path="/static")
 
 
 @app.get("/")
 def index():
-    return send_from_directory(".", "index.html")
+    return send_from_directory(PROJECT_DIR / "public", "index.html")
 
 
 @app.get("/api/weather")
@@ -35,6 +35,15 @@ def weather():
         return jsonify(payload), status
     except (KeyError, URLError, TimeoutError, ValueError) as exc:
         return jsonify({"error": f"날씨 정보를 불러오지 못했습니다: {exc}"}), 502
+    except Exception as exc:
+        return jsonify({"error": f"서버에서 예기치 못한 오류가 발생했습니다: {exc}"}), 500
+
+
+@app.errorhandler(Exception)
+def handle_unexpected_error(exc):
+    if request.path.startswith("/api/"):
+        return jsonify({"error": f"서버 오류: {exc}"}), 500
+    return send_from_directory(PROJECT_DIR / "public", "index.html")
 
 
 if __name__ == "__main__":

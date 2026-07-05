@@ -3,7 +3,7 @@ import json
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
 
-from api.weather import weather_payload
+from weather_service import weather_payload
 
 
 class LocalHandler(SimpleHTTPRequestHandler):
